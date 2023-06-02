@@ -58,5 +58,130 @@ function gerarNumero(l, c) {
     matriz[l][c] = count;
 }
 function gerarNumeros() {
-    
+    for (let i = 0; i < linhas; i++) {
+        for (let j = 0; j < colunas; j++) {
+            if (matriz[i][j] !== -1) {
+                gerarNumero(i, j);
+            }
+        }
+    }
 }
+function bandeira(event) {
+    let cell = event.target;
+    let linha = cell.parentNode.rowIndex;
+    let coluna = cell.cellIndex;
+    if (cell.className === "blocked") {
+        cell.className = "flag";
+        cell.innerHTML = "&#128681;";
+    } else if (cell.innerHTML === "flag") {
+        className = "blocked";
+        cell.innerHTML = "";
+    }
+    return false;
+}
+
+function init() {
+    tabela = document.getElementById("tabela");
+    tabela.onclick = verificar;
+    tabela.oncontextmenu = bandeira;
+    let diff = document.getElementById("dificuldade")
+    switch (parseInt(diff.value)) {
+        case 0:
+            linhas = 9;
+            colunas = 9;
+            bombas = 10;
+            break;
+        case 1:
+            linhas = 16;
+            colunas = 16;
+            bombas = 40;
+            break
+        default:
+            linhas = 16;
+            colunas = 30;
+            bombas = 99;
+            break
+    }
+    gerarTabela(linhas, colunas);
+    gerarBombas();
+    gerarNumeros();
+    // mostrarMatriz();
+}
+
+function limparCelulas(l, c) {
+    for (let i = l - 1; i <= l + 1; i++) {
+        for (let j = i - 1; j <= i + 1; j++) {
+            if (i >= 0 && i < linhas && j >= 0 && j < colunas) {
+                let cell = tabela.rows[i].cells[j];
+                if (cell.className !== "blank") {
+                    switch (matriz[i][j]) {
+                        case -1:
+                            break;
+                        case 0:
+                            cell.innerHTML = "";
+                            cell.className = "blank";
+                            limparCelulas(i, j);
+                            break;
+                        default:
+                            cell.innerHTML = matriz[i][j];
+                            cell.className = "n" + matriz[i][j]; 
+                    }
+                }
+            }
+        }
+    }
+}
+
+function mostrarBombas() {
+    for (let i = 0; i < linhas; i++) {
+        for (let j = 0; j < colunas; j++) {
+            if (matriz[i][j] === -1) {
+                let cell = tabela.rows[i].cells[j];
+                cell.innerHTML = "&#128163;";
+                cell.className = "blank";
+            }
+        }
+    }
+}
+
+function verificar(event) {
+    let cell = event.target;
+    if (cell.className !== "flag") {
+        let linha = cell.parentNode.rowIndex;
+        let coluna = cell.cellIndex;
+        switch (matriz[linha][coluna]) {
+            case -1:
+                mostrarBombas();
+                cell.style.backgroundcolor = "red";
+                tabela.onclick = undefined;
+                tabela.oncontextmenu = undefined;
+                break;
+                alert("Você Perdeu!");
+            case 0:
+                limparCelulas(linha, coluna);
+                break;
+            default:
+                cell.innerHTML = matriz[linha][coluna];
+                cell.className = "n" + matriz[linha][coluna];
+        }
+        fimDeJogo();
+    }
+}
+
+function fimDeJogo() {
+        let cells = document.querySelectorAll(".blocked, .flag")
+        if (cells.length === bombas) {
+            mostrarBombas();
+            tabela.onclick = undefined;
+            tabela.oncontextmenu = undefined;
+            alert("Você venceu!");
+        }
+}
+
+function registerEvents() {
+    init();
+    let diff = document.getElementById("dificuldade");
+    diff.onchange = init;
+}
+
+onload = registerEvents;
