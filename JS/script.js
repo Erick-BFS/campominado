@@ -1,5 +1,4 @@
 let linhas, colunas, bombas, matriz, tabela;
-
 function gerarMatriz(l, c) {
     matriz = [];
     for (let i = 0; i < l; i++) {
@@ -9,7 +8,7 @@ function gerarMatriz(l, c) {
 }
 
 function gerarTabela(l, c) {
-    gerarMatriz(l. c);
+    gerarMatriz(l, c);
     let str = "";
     for (let i = 0; i < l; i++) {
         str += "<tr>";
@@ -47,7 +46,7 @@ function gerarBombas() {
 function gerarNumero(l, c) {
     let count = 0;
     for (let i = l - 1; i <= l + 1; i++) {
-        for (let j = c - 1; j <=c + 1; j++) {
+        for (let j = c - 1; j <= c + 1; j++) {
             if (i >= 0 && i < linhas && j >= 0 && j < colunas) {
                 if (matriz[i][j] === -1) {
                     count++;
@@ -57,6 +56,7 @@ function gerarNumero(l, c) {
     }
     matriz[l][c] = count;
 }
+
 function gerarNumeros() {
     for (let i = 0; i < linhas; i++) {
         for (let j = 0; j < colunas; j++) {
@@ -66,15 +66,16 @@ function gerarNumeros() {
         }
     }
 }
+
 function bandeira(event) {
     let cell = event.target;
     let linha = cell.parentNode.rowIndex;
     let coluna = cell.cellIndex;
     if (cell.className === "blocked") {
         cell.className = "flag";
-        cell.innerHTML = "&#128681;";
-    } else if (cell.innerHTML === "flag") {
-        className = "blocked";
+        cell.innerHTML = "&#128681;";//&#9873;
+    } else if (cell.className === "flag") {
+        cell.className = "blocked";
         cell.innerHTML = "";
     }
     return false;
@@ -84,7 +85,7 @@ function init() {
     tabela = document.getElementById("tabela");
     tabela.onclick = verificar;
     tabela.oncontextmenu = bandeira;
-    let diff = document.getElementById("dificuldade")
+    let diff = document.getElementById("dificuldade");
     switch (parseInt(diff.value)) {
         case 0:
             linhas = 9;
@@ -95,22 +96,22 @@ function init() {
             linhas = 16;
             colunas = 16;
             bombas = 40;
-            break
+            break;
         default:
             linhas = 16;
             colunas = 30;
             bombas = 99;
-            break
+            break;
     }
     gerarTabela(linhas, colunas);
     gerarBombas();
     gerarNumeros();
-    // mostrarMatriz();
+    //    mostrarMatriz();
 }
 
 function limparCelulas(l, c) {
     for (let i = l - 1; i <= l + 1; i++) {
-        for (let j = i - 1; j <= i + 1; j++) {
+        for (let j = c - 1; j <= c + 1; j++) {
             if (i >= 0 && i < linhas && j >= 0 && j < colunas) {
                 let cell = tabela.rows[i].cells[j];
                 if (cell.className !== "blank") {
@@ -124,7 +125,7 @@ function limparCelulas(l, c) {
                             break;
                         default:
                             cell.innerHTML = matriz[i][j];
-                            cell.className = "n" + matriz[i][j]; 
+                            cell.className = "n" + matriz[i][j];
                     }
                 }
             }
@@ -152,11 +153,11 @@ function verificar(event) {
         switch (matriz[linha][coluna]) {
             case -1:
                 mostrarBombas();
-                cell.style.backgroundcolor = "red";
+                cell.style.backgroundColor = "red";
                 tabela.onclick = undefined;
                 tabela.oncontextmenu = undefined;
+                alert("Você perdeu!");
                 break;
-                alert("Você Perdeu!");
             case 0:
                 limparCelulas(linha, coluna);
                 break;
@@ -169,13 +170,13 @@ function verificar(event) {
 }
 
 function fimDeJogo() {
-        let cells = document.querySelectorAll(".blocked, .flag")
-        if (cells.length === bombas) {
-            mostrarBombas();
-            tabela.onclick = undefined;
-            tabela.oncontextmenu = undefined;
-            alert("Você venceu!");
-        }
+    let cells = document.querySelectorAll(".blocked, .flag");
+    if (cells.length === bombas) {
+        mostrarBombas();
+        tabela.onclick = undefined;
+        tabela.oncontextmenu = undefined;
+        alert("Você venceu!");
+    }
 }
 
 function registerEvents() {
@@ -183,5 +184,4 @@ function registerEvents() {
     let diff = document.getElementById("dificuldade");
     diff.onchange = init;
 }
-
 onload = registerEvents;
